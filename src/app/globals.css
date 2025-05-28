@@ -219,3 +219,6 @@
 .read-the-docs {
   color: #888;
 }
+.gallery-item > div {
+  width: 100%;
+}

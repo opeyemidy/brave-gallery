@@ -5,6 +5,7 @@ import { VirtualizedGallery } from '@/components/VirtualizedGallery';
 import { mockData } from '@/utils/mockData';
 import { filterAndSortImages } from '@/utils/galleryUtils';
 import { FilterOptions } from '@/types/gallery';
+// import GalleryFallback from '@/components/GalleryFallback';
 
 const Index = () => {
   const [filters] = useState<FilterOptions>({
@@ -46,3 +47,4 @@ const Index = () => {
 };
 
 export default Index;
+{/* <GalleryFallback imageUrls={filteredImages.map((image) => image.url)} /> */ }

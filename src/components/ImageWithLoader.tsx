@@ -11,13 +11,14 @@ interface Props {
     height: number;
     gifLoader?: string;
     onClick?: () => void;
+    style?: React.CSSProperties;
 }
 
-export default function ImageWithLoader({ src, alt, width, height, gifLoader, onClick, className }: Props) {
+export default function ImageWithLoader({ src, alt, width, height, onClick, className, style }: Props) {
     const [loading, setLoading] = useState(true);
 
     return (
-        <div style={{ position: 'relative', width: 'inherit', height: 'inherit' }}>
+        <div style={style || { position: 'relative', width: 'inherit', height: 'inherit' }}>
             {loading && (
                 // spinner
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -35,6 +36,7 @@ export default function ImageWithLoader({ src, alt, width, height, gifLoader, on
                 className={className}
                 loading="lazy"
                 onClick={onClick}
+            // loader={() => '/cargando.gif'}
             />
         </div>
     );
