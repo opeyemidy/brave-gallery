@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface Props {
@@ -12,11 +12,19 @@ interface Props {
     gifLoader?: string;
     onClick?: () => void;
     style?: React.CSSProperties;
+    onError?: () => void
+    onLoad?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
 
-export default function ImageWithLoader({ src, alt, width, height, onClick, className, style }: Props) {
+export default function ImageWithLoader({ src, alt, width, height, onClick, className, style, onError, onLoad }: Props) {
     const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+
+        return () => {
+            setLoading(true); // Reset loading state when src changes
+        }
+    }, [src]);
     return (
         <div style={style || { position: 'relative', width: 'inherit', height: 'inherit' }}>
             {loading && (
@@ -30,12 +38,20 @@ export default function ImageWithLoader({ src, alt, width, height, onClick, clas
                 alt={alt}
                 width={width}
                 height={height}
+                unoptimized={true} // Use unoptimized to avoid Next.js image optimization
+                priority={false} // Set to false to avoid preloading
                 // fill
-                onLoadingComplete={() => setLoading(false)}
+                onLoad={(e) => {
+                    onLoad?.(e);
+                    console.log('Image loaded:', e);
+
+                    setLoading(false)
+                }}
                 style={loading ? { opacity: 0 } : { transition: 'opacity 0.3s ease-in', opacity: 1 }}
                 className={className}
                 loading="lazy"
                 onClick={onClick}
+                onError={onError}
             // loader={() => '/cargando.gif'}
             />
         </div>

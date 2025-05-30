@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, SyntheticEvent } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, X, Download, ZoomIn, ZoomOut } from 'lucide-react';
 import Image from 'next/image';
+import ImageWithLoader from './ImageWithLoader';
 
 interface ImageModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
   const [width, setWidth] = useState(800);
   const [height, setHeight] = useState(600);
   const [imageError, setImageError] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
@@ -27,6 +29,7 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
     setWidth(800);
     setHeight(600);
     setImageError(false);
+    setImageDimensions(null);
   }, [initialIndex, isOpen]);
 
   const goToNext = useCallback(() => {
@@ -34,6 +37,7 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
       setCurrentIndex((prev) => (prev + 1) % images.length);
       setZoom(1);
       setImageError(false);
+      setImageDimensions(null);
     }
   }, [images]);
 
@@ -42,6 +46,7 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
       setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
       setZoom(1);
       setImageError(false);
+      setImageDimensions(null);
     }
   }, [images]);
 
@@ -126,32 +131,22 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
           onTouchEnd={handleTouchEnd}
         >
           {/* Controls */}
-          <div className="absolute top-10 lg:top-4 right-4 z-50 flex flex-wrap items-center gap-2 bg-black/60 rounded-lg p-2">
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-black/60 rounded-lg p-2">
             <Badge variant="secondary" className="mr-2">
               {currentIndex + 1} / {images.length}
             </Badge>
-            {/* <div className="flex items-center gap-1 border-r border-white/20 pr-2">
-              <Button variant="ghost" size="sm" onClick={handleDecreaseWidth} className="text-white hover:bg-white/20 text-xs px-2">
-                W-
-              </Button>
-              <span className="text-white text-xs px-1">{width}</span>
-              <Button variant="ghost" size="sm" onClick={handleIncreaseWidth} className="text-white hover:bg-white/20 text-xs px-2">
-                W+
-              </Button>
-            </div> */}
-            {/* <div className="flex items-center gap-1 border-r border-white/20 pr-2">
-              <Button variant="ghost" size="sm" onClick={handleDecreaseHeight} className="text-white hover:bg-white/20 text-xs px-2">
-                H-
-              </Button>
-              <span className="text-white text-xs px-1">{height}</span>
-              <Button variant="ghost" size="sm" onClick={handleIncreaseHeight} className="text-white hover:bg-white/20 text-xs px-2">
-                H+
-              </Button>
-            </div> */}
+            <span className='block relative min-w-[97px]'>
+              {imageDimensions &&
+                <Badge variant="outline" className="animate-in animate-out mr-2 text-white border-white/20">
+                  {imageDimensions.width} × {imageDimensions.height}
+                </Badge>
+              }
+            </span>
             <div className="flex items-center gap-1 border-r border-white/20 pr-2">
               <Button variant="ghost" size="sm" onClick={handleZoomOut} className="text-white hover:bg-white/20">
                 <ZoomOut className="h-4 w-4" />
               </Button>
+              <span className="text-white text-xs px-2">{Math.round(zoom * 100)}%</span>
               <Button variant="ghost" size="sm" onClick={handleZoomIn} className="text-white hover:bg-white/20">
                 <ZoomIn className="h-4 w-4" />
               </Button>
@@ -167,7 +162,7 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
           {/* Image */}
           <div className="flex items-center justify-center w-full h-full overflow-hidden">
             {!imageError ? (
-              <Image
+              <ImageWithLoader
                 width={width}
                 height={height}
                 src={images[currentIndex]}
@@ -178,6 +173,13 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
                   height: `${height}px`,
                   transform: `scale(${zoom})`
                 }}
+                onLoad={(e: SyntheticEvent<HTMLImageElement, Event>) => {
+                  const img = e.currentTarget as HTMLImageElement;
+                  console.log('Image loaded:', img.naturalWidth, img.naturalHeight);
+                  setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+                  setImageError(false);
+                }
+                }
                 onError={() => setImageError(true)}
               />
             ) : (
