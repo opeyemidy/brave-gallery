@@ -131,11 +131,11 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
           onTouchEnd={handleTouchEnd}
         >
           {/* Controls */}
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-black/60 rounded-lg p-2">
+          <div className="absolute top-10 lg:top-4 right-4 z-50 flex flex-wrap items-center gap-2 bg-black/60 rounded-lg p-2">
             <Badge variant="secondary" className="mr-2">
               {currentIndex + 1} / {images.length}
             </Badge>
-            <span className='block relative min-w-[97px]'>
+            <span className='block relative min-w-[97px] order-1 md:order-none'>
               {imageDimensions &&
                 <Badge variant="outline" className="animate-in animate-out mr-2 text-white border-white/20">
                   {imageDimensions.width} × {imageDimensions.height}
@@ -169,8 +169,8 @@ export const ImageModal = ({ isOpen, onClose, images, initialIndex }: ImageModal
                 alt={`Image ${currentIndex + 1}`}
                 className="object-contain transition-all duration-200"
                 style={{
-                  width: `${width}px`,
-                  height: `${height}px`,
+                  // width: `${width}px`,
+                  // height: `${height}px`,
                   transform: `scale(${zoom})`
                 }}
                 onLoad={(e: SyntheticEvent<HTMLImageElement, Event>) => {
